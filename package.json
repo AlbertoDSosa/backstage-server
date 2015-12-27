@@ -1,0 +1,32 @@
+{
+  "name": "backstage-server",
+  "version": "0.0.1",
+  "description": "API RestFull para la aplicación BackStage",
+  "main": "index.js",
+  "scripts": {
+    "lint": "standard",
+    "coverage": "istanbul cover tape -- tests/**/*.js",
+    "test": "tape tests/**/*.js | tap-spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/AlbertoDSosa/backstage-server.git"
+  },
+  "author": "Alberto D.Sosa",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/AlbertoDSosa/backstage-server/issues"
+  },
+  "homepage": "https://gitlab.com/AlbertoDSosa/backstage-server#README",
+  "dependencies": {
+    "express": "^4.13.3",
+    "mongoose": "^4.3.3"
+  },
+  "devDependencies": {
+    "istanbul": "^0.4.1",
+    "nock": "^3.6.0",
+    "standard": "^5.4.1",
+    "tap-spec": "^4.1.1",
+    "tape": "^4.3.0"
+  }
+}
