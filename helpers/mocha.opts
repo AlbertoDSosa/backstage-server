@@ -1,0 +1,4 @@
+--ui bdd
+--reporter spec
+-r helpers/test/setup
+-w

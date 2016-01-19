@@ -1,11 +1,9 @@
-var express = require('express');
+var express = require('express')
 
-var apiRouter = express.Router();
+var apiRouter = express.Router()
 
-var users = require('./users').router;
+var users = require('./users').router
 
+apiRouter.use('/', users)
 
-apiRouter.use('/', users);
-
-
-module.exports = apiRouter;
+module.exports = apiRouter
