@@ -2,11 +2,11 @@
   "name": "backstage-server",
   "version": "0.0.1",
   "description": "API RestFull para la aplicación BackStage",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "lint": "standard api/**/*.js",
-    "coverage": "istanbul cover mocha -- tests/**/*.js",
-    "test": "npm run lint && NODE_PATH=. mocha --opts helpers/test/mocha.opts --recursive"
+    "coverage": "NODE_PATH=. istanbul cover _mocha -- --opts helpers/test/mocha.opts --recursive",
+    "test": "NODE_ENV='development' NODE_PATH=. mocha --opts helpers/test/mocha.opts --recursive"
   },
   "repository": {
     "type": "git",
@@ -20,6 +20,7 @@
   "homepage": "https://gitlab.com/AlbertoDSosa/backstage-server#README",
   "dependencies": {
     "body-parser": "^1.14.2",
+    "cors": "^2.7.1",
     "express": "^4.13.3",
     "mongoose": "^4.3.3"
   },
@@ -27,6 +28,7 @@
     "chai": "^3.4.1",
     "istanbul": "^0.4.1",
     "mocha": "^2.3.4",
+    "mockgoose": "^5.2.2",
     "standard": "^5.4.1",
     "supertest": "^1.1.0"
   }

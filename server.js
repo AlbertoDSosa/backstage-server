@@ -5,7 +5,13 @@ var mongoose = require('mongoose')
 var api = require('./api')
 var bodyParser = require('body-parser')
 
-mongoose.connect(process.env.MONGOLAB_URI || 'mongodb://localhost/backstage')
+var env = process.env.NODE_ENV || 'production'
+
+if(env === 'development'){
+	mongoose.connect('mongodb://localhost/backstage-test')
+} else {
+	mongoose.connect('mongodb://localhost/backstage')
+}
 
 app.use(function (req, res, next) {
   res.header('Access-Control-Allow-Origin', '*')
