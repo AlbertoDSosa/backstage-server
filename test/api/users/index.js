@@ -1,4 +1,5 @@
-var User = require('api/users').model
+var mongoose = require('mongoose')
+var User = mongoose.model('User')
 var server = require('server')
 var request = require('supertest')
 var host = process.env.API_TEST_HOST || server
@@ -6,7 +7,24 @@ var host = process.env.API_TEST_HOST || server
 
 request = request(host)
 
+function saveUser (done) {
+	var data = {
+			'firstName': 'Sebastián',
+			'lastName': 'D.Sosa',
+			'userRole': 'Gamer'
+		}
+
+		request
+				.post('/user')
+				.set('Accept', 'application/json')
+				.send(data)
+				.expect('Content-Type', /application\/json/)
+				.expect(201)
+				.end(done)
+}
+
 describe('Recurso /user', function () {
+
 	var user = {
 		'firstName': 'Alberto',
 		'lastName': 'D.Sosa',
@@ -14,21 +32,17 @@ describe('Recurso /user', function () {
 	}
 
 	var newUser = {
-		'userId': 1,
 		'firstName': 'Orlando',
-		'lastName': 'Green',
+		'lastName': 'D.Sosa',
 		'userRole': 'Realizador'
 	}
 
-	after(function (done) {
-		User.remove(function (err) {
-			if(err){
-				done(err)
-			} else {
-				done()
-			}
-		})
-	})
+	var badUser = {
+		'firstName': 'Alberto',
+		'lastName': 'D.Sosa',
+	}
+
+	before(saveUser)
 
 	describe('Petición POST', function () {
 		it('debería registrar un usuario', function (done) {
@@ -51,6 +65,16 @@ describe('Recurso /user', function () {
 					}
 				})
 		})
+
+		it('debería devolver 400 si no se pasa bien un usuario', function (done) {
+			request
+				.post('/user')
+				.set('Accept', 'application/json')
+				.send(badUser)
+				.expect('Content-Type', /application\/json/)
+				.expect(400)
+				.end(done)
+		})
 	})
 
 	describe('Petición GET', function () {
@@ -72,6 +96,14 @@ describe('Recurso /user', function () {
 					}
 				})
 		})
+
+		it('debería devolver 400 si el id pasado es incorrecto', function (done) {
+			request
+				.get('/user/4')
+				.expect('Content-Type', /application\/json/)
+				.expect(400)
+				.end(done)
+		})
 	})
 
 	describe('Petición PUT', function () {
@@ -89,13 +121,23 @@ describe('Recurso /user', function () {
 						var body = res.body
 						expect(body.userId).to.equal(1)
 						expect(body.firstName).to.equal('Orlando')
-						expect(body.lastName).to.equal('Green')
+						expect(body.lastName).to.equal('D.Sosa')
 						expect(body.userRole).to.equal('Realizador')
 						done()
-
 					}
 				})
 		})
+
+		it('debería devolver 400 si el id pasado es incorrecto', function (done) {
+			request
+				.put('/user/4')
+				.set('Accept', 'application/json')
+				.send(newUser)
+				.expect('Content-Type', /application\/json/)
+				.expect(400)
+				.end(done)
+		})
+
 	})
 
 	describe('Petición DELETE', function () {
@@ -113,76 +155,85 @@ describe('Recurso /user', function () {
 						expect(body.ok).to.equal(1)
 						expect(body.value.userId).to.equal(1)
 						expect(body.value.firstName).to.equal('Orlando')
-						expect(body.value.lastName).to.equal('Green')
+						expect(body.value.lastName).to.equal('D.Sosa')
 						expect(body.value.userRole).to.equal('Realizador')
 						done()
 					}
 				})
 		})
+
+		it('debería devolver 400 si el id pasado es incorrecto', function (done) {
+			request
+				.delete('/user/4')
+				.expect('Content-Type', /application\/json/)
+				.expect(400)
+				.end(done)
+		})
 	})
 })
 
-// describe('Recurso /users', function (done) {
+describe('Recurso /users', function (done) {
 
-// 	describe('Petición GET', function () {
-// 		beforeEach(function (done) {
-// 			var user = new User()
-// 			user.userId = 1
-// 			user.firstName = 'Alberto'
-// 			user.lastName = 'D.Sosa'
-// 			user.userRole = 'Profesional Tic'
-// 			user.save()
-// 			done()
-// 		})
+	describe('Petición GET', function () {
 
-// 		afterEach(function (done) {
-// 			User.remove({}, function (err) {
-// 				if(err) {
-// 					done(err)
-// 				} else {
-// 					done()
-// 				}
-// 			})
-// 		})
+		beforeEach(saveUser)
 
-// 		it('debería respoder 200 si la petición fue exitosa', function (done) {
+		afterEach(function (done) {
+			User.remove({}, function (err) {
+				if(err) {
+					done(err)
+				} else {
+					done()
+				}
+			})
+		})
 
-// 			request
-// 				.get('/users')
-// 				.expect(200)
-// 				.end(done)
-// 		})
 
-// 		it('debería respoder con json', function (done) {
+		it('debería listar todos los usuarios', function (done) {
 
-// 			request
-// 				.get('/users')
-// 				.expect('Content-Type', /application\/json/)
-// 				.end(done)
-// 		})
+			request
+				.get('/users')
+				.set('Accept', 'application/json')
+				.expect('Content-Type', /application\/json/)
+				.end(function (err, res) {
+					if (err) return done(err)
+					expect(res.body).to.be.an('array')
+						.and.to.have.length(2)
+					var user_1 = res.body[0]
+					var user_2 = res.body[1]
 
-// 		it('debería listar todos los usuarios', function (done) {
+					expect(user_1).to.have.property('_id')
+					expect(user_2).to.have.property('_id')
 
-// 			request
-// 				.get('/users')
-// 				.end(function (err, res) {
-// 					if (err) return done(err)
-// 					expect(res.body).to.be.an('array')
-// 					expect(res.body[0]).to.be.an('object')
-// 					expect(res.body[0]).to.have.property('userId')
-// 					done()
-// 				})
-// 		})
-// 	})
+					expect(user_1.userId).to.equal(2)
+					expect(user_1.firstName).to.equal('Alberto')
+					expect(user_1.lastName).to.equal('D.Sosa')
+					expect(user_1.userRole).to.equal('Técnico')
 
-// 	describe('Sin usuarios', function () {
+					expect(user_2.userId).to.equal(3)
+					expect(user_2.firstName).to.equal('Sebastián')
+					expect(user_2.lastName).to.equal('D.Sosa')
+					expect(user_2.userRole).to.equal('Gamer')
 
-// 		it('debería responder 204 si no encuentra usuarios', function (done) {
+					done()
+				})
+		})
+	})
 
-// 			request
-// 				.get('/users')
-// 				.expect(204)
-// 				.end(done)
-// 		})
-// 	})
-// })
+	describe('Sin datos', function () {
+
+		it('debería responder 204 si no encuentra usuarios', function (done) {
+
+			request
+				.get('/users')
+				.expect(204)
+				.end(function (err, res) {
+					if(err) return done(err)
+					done()
+				})
+		})
+	})
+
+
+
+})

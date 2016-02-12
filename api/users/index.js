@@ -2,12 +2,11 @@ var mongoose = require('mongoose')
 var express = require('express')
 
 var UserSchema = new mongoose.Schema({
-	userId: { type: Number, required: true, unique: true },
-	firstName: { type: String },
-	lastName: { type: String },
-
-	// Administrador, etc..
-	userRole: { type: String }
+	//id: { type: Number, required: true, unique: true },
+	name: { type: String, required: true, unique: true },
+	password: { type: String, required: true },
+	role: { type: String, required: true }
+	data: { type: objectId }
 })
 
 var User = mongoose.model('User', UserSchema)
@@ -18,31 +17,33 @@ var router = express.Router()
 // Peticiones http
 
 router.post('/user', function (req, res) {
-	var userId = 0, user
+	var userId, user
 
 	var onSave = function (err) {
 		if(err){
-			res.status(503).json(err)
+			if (err.message === 'User validation failed') {
+				res.status(400).json(err)
+			} else {
+				res.status(503).json(err)
+			}
+
+		} else {
+			res.status(201).json(user)
 		}
-		res.status(201).json(user)
 	}
 
 	User.find({}, function (err, users) {
-		if(users.length >= 1){
+		if(err){
+			res.status(503).json(err)
+		} else if(users.length >= 1){
 			var last = users.length - 1
 			userId = users[last].userId
-			user = new User()
+			user = new User(req.body)
 			user.userId = userId + 1
-			for(var key in req.body){
-				user[key] = req.body[key]
-			}
 			user.save(onSave)
 		} else {
-			user = new User()
+			user = new User(req.body)
 			user.userId = 1
-			for(var key in req.body){
-				user[key] = req.body[key]
-			}
 			user.save(onSave)
 		}
 	})
@@ -53,38 +54,38 @@ router.get('/user/:userId', function (req, res) {
 	User.findOne({userId: userId}, function (err, user) {
 		if(err){
 			res.status(503).json(err)
+		} else if (!user) {
+			res.status(400).json()
 		} else {
 			res.json(user)
 		}
 	})
 })
 
-router.put('/user/:userId', function (req, res) {
+router.put('/user/:userId?', function (req, res) {
   User
     .findOneAndUpdate(
       {
        userId: req.params.userId
       },
       {
-	      $set: {
-	        firstName: req.body.firstName,
-	        lastName: req.body.lastName,
-	        userRole: req.body.userRole
-	      }
+	      $set: req.body
       },
       {
       	new: true
       },
 			function (err, user) {
 			  if (err) {
-			    res.status(503).json(err)
-			  } else {
-			    res.json(user)
-			  }
+  				res.status(503).json(err)
+			  } else if(!user){
+		  		res.status(400).json()
+		  	} else {
+		    	res.json(user)
+		  	}
 			})
 })
 
-router.delete('/user/:userId', function (req, res) {
+router.delete('/user/:userId?', function (req, res) {
  var userId = req.params.userId
 
  User.findOneAndRemove(
@@ -98,29 +99,30 @@ router.delete('/user/:userId', function (req, res) {
 
  	function (err, user, result) {
  		if(err){
- 			res.status(503).json()
- 		} else {
- 			res.status(200).json(result)
- 		}
+ 			res.status(503).json(err)
+ 		} else if(!user && result === undefined){
+  		res.status(400).json()
+  	} else if(user && result){
+    	res.json(result)
+  	}
  	})
-
 })
 
 
-// router.get('/users', function (req, res) {
-// 	getUsers(function (err, users) {
-// 		if(err){
-// 			// Si hay algún error en la base de datos
-// 			res.status(503).json(err)
-// 		} else if (users.length === 0) {
-// 			// Si no encuentra usuarios
-// 			res.status(204).json()
-// 		} else {
-// 			// Si encuentra usuarios los devuelve
-// 			res.json(users)
-// 		}
-// 	})
-// })
+router.get('/users', function (req, res) {
+	User.find({}, function (err, users) {
+		if(err){
+			// Si hay algún error en la base de datos
+			res.status(503).json(err)
+		} else if (users.length === 0) {
+			// Si no encuentra usuarios
+			res.sendStatus(204)
+		} else {
+			// Si encuentra usuarios los devuelve
+			res.json(users)
+		}
+	})
+})
 
 module.exports = {
 	router: router,
