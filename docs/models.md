@@ -25,7 +25,7 @@
 	-> phone
 	-> fax
 
--> equipament[array]
+-> equipament
 	-> id
 	-> count
 	-> name

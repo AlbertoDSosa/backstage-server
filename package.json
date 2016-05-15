@@ -6,7 +6,8 @@
   "scripts": {
     "lint": "standard api/**/*.js",
     "coverage": "NODE_PATH=. istanbul cover _mocha -- --opts helpers/test/mocha.opts --recursive",
-    "test": "NODE_ENV='development' NODE_PATH=. mocha --opts helpers/test/mocha.opts --recursive"
+    "test": "NODE_ENV='development' NODE_PATH=. mocha --opts helpers/test/mocha.opts --recursive",
+    "start": "nodemon server.js"
   },
   "repository": {
     "type": "git",
@@ -27,7 +28,8 @@
     "express-session": "^1.13.0",
     "mongoose": "^4.3.3",
     "passport": "^0.3.2",
-    "passport-local": "^1.0.0"
+    "passport-local": "^1.0.0",
+    "phantomjs-pdf": "^0.1.2"
   },
   "devDependencies": {
     "chai": "^3.4.1",

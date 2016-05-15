@@ -22,10 +22,5 @@ app.use(bodyParser.urlencoded({ extended: false }))
 // Servidor
 app.use('/', api)
 
-var server = app.listen(5000, function () {
-	var host = server.address().address
-	var port = server.address().port
-
-	console.log('Servidor escuchando en http://%s:%s', host, port)
-})
+var server = app.listen(5000)
 module.exports = app
