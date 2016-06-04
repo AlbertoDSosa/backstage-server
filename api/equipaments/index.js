@@ -1,5 +1,6 @@
 var mongoose = require('mongoose')
 var express = require('express')
+var db = require('helpers/query')
 
 var EquipamentSchema = mongoose.Schema({
 	id: { type: String, required: true, unique: true },
@@ -20,90 +21,32 @@ var router = express.Router()
 
 router.post('/equipament', function (req, res) {
 
-	var equipament = new Equipament(req.body)
-
-	equipament.save(function (err, equipament) {
-		if(err) return res.status(503).json(err)
-
-		res.status(201).json(equipament)
-	})
+	db.query(req, res, 'save', Equipament)
 
 })
 
 router.get('/equipaments/:feature?', function (req, res) {
-  var feature = req.params.feature
-  Equipament.find({feature: feature}, function (err, equipaments) {
-    if(err){
-      // Si hay algún error en la base de datos
-      res.status(503).json(err)
-    } else if (equipaments.length === 0) {
-      // Si no encuentra equipos
-      res.sendStatus(204)
-    } else {
-      // Si encuentra equipos los devuelve
-      res.json(equipaments)
-    }
-  })
+
+  db.query(req, res, 'find', Equipament)
+
 })
 
 router.get('/equipament/:id?', function (req, res) {
-  var id = req.params.id
-  Equipament.findOne({id: id}, function (err, equipament) {
-    if(err){
-      res.status(503).json(err)
-    } else if (!equipament) {
-      res.status(400).json()
-    } else {
-      res.json(equipament)
-    }
-  })
+
+  db.query(req, res, 'findOne', Equipament)
+
 })
 
 router.put('/equipament/:id?', function (req, res) {
-  Equipament
-    .findOneAndUpdate(
-      {
-       id: req.params.id
-      },
-      {
-        $set: req.body
-      },
-      {
-        new: true
-      },
-      function (err, equipament) {
-        if (err) {
-          res.status(503).json(err)
-        } else if(!equipament){
-          res.status(400).json()
-        } else {
-          res.json(equipament)
-        }
-      })
+  db.query(req, res, 'update', Equipament)
+
 })
 
 router.delete('/equipament/:id?', function (req, res) {
- var id = req.params.id
+  var id = req.params.id
 
- Equipament
-   .findOneAndRemove(
-      {
-        id: id
-      },
+  db.query(req, res, 'delete', Equipament)
 
-      {
-        passRawResult: true
-      },
-
-      function (err, equipament, result) {
-        if(err){
-          res.status(503).json(err)
-        } else if(!equipament && result === undefined){
-          res.status(400).json()
-        } else if(equipament && result){
-          res.json(result)
-        }
-      })
 })
 
 module.exports = {
