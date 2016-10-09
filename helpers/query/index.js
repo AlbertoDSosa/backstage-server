@@ -1,7 +1,6 @@
 
 
 var query = function (req, res, query, Resource) {
-
   if (query === 'find' ) {
 
     var feature = req.params.feature
@@ -9,7 +8,7 @@ var query = function (req, res, query, Resource) {
     Resource.find({ feature: feature }, function (err, resObj) {
       if(err){
         // Si hay algún error en la base de datos
-        resp.status(503).json(err)
+        res.status(503).json(err)
       } else if (resObj.length === 0) {
         // Si no encuentra recursos
         res.sendStatus(204)

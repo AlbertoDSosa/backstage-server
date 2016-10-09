@@ -10,7 +10,7 @@ var ShowSchema = mongoose.Schema({
   place: { type: String, required: true },
   makedBy: { type: String, required: true },
   chekedBy: { type: String, required: true },
-  date: { type: Date, required: true },
+  // date: { type: Date, required: true },
   equipaments: [{
     type: objectId,
     ref: 'Equipament',
@@ -25,6 +25,7 @@ var Show = mongoose.model('Show', ShowSchema)
 var router = express.Router()
 
 router.post('/show', function (req, res) {
+  console.log(req.body)
   var show = new Show(req.body)
 
   show.save(function (err, show) {

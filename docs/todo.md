@@ -1,6 +1,7 @@
 ### Todo List
 
 Server
+- implementar disponibilidad en equipaments
 - terminar shows
 - Autenticación
 - Validaciones
